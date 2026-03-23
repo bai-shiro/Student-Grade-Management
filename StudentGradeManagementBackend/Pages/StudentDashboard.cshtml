@@ -1,0 +1,171 @@
+@page
+@model StudentGradeManagementBackend.Pages.StudentDashboardModel
+@{
+    ViewData["Title"] = "学生个人面板";
+    // 非学生角色直接跳转登录页
+    if (HttpContext.Session.GetString("Role") != "student")
+    {
+        Response.Redirect("/Login");
+    }
+}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <!-- 修正Bootstrap引用路径 -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        .navbar {
+            margin-bottom: 2rem;
+        }
+        .table-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .empty-tip {
+            color: #6c757d;
+            text-align: center;
+            padding: 2rem;
+        }
+        .grade-badge {
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/Index">学生成绩管理系统</a>
+            <div class="navbar-nav ms-auto">
+                <span class="nav-link text-light">
+                    学号：@Model.Student.StudentId | 姓名：@Model.Student.Name
+                </span>
+                <a class="nav-link text-light" href="/Login?logout=true">退出登录</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="text-center mb-4">个人成绩面板</h1>
+        
+        <!-- 成绩表格容器 -->
+        <div class="table-container">
+            <table class="table table-striped table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>课程编号</th>
+                        <th>课程名称</th>
+                        <th>学分</th>
+                        <th>成绩</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Scores != null && Model.Scores.Count > 0)
+                    {
+                        @foreach (var score in Model.Scores)
+                        {
+                            <tr>
+                                <td>@score.Course.CourseId</td>
+                                <td>@score.Course.CourseName</td>
+                                <td>@score.Course.Credit.ToString("0.0")</td>
+                                <td>
+                                    @score.ScoreValue.ToString("0.00")
+                                    @{
+                                        string level = score.ScoreValue >= 90 ? "优秀" :
+                                                       score.ScoreValue >= 80 ? "良好" :
+                                                       score.ScoreValue >= 70 ? "中等" :
+                                                       score.ScoreValue >= 60 ? "及格" : "不及格";
+                                        string badgeClass = level switch
+                                        {
+                                            "优秀" => "bg-success",
+                                            "良好" => "bg-primary",
+                                            "中等" => "bg-info",
+                                            "及格" => "bg-warning",
+                                            _ => "bg-danger"
+                                        };
+                                    }
+                                    <span class="badge ms-2 @badgeClass grade-badge">@level</span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="empty-tip">暂无成绩数据</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- 成绩统计 -->
+            @if (Model.Scores != null && Model.Scores.Count > 0)
+            {
+                <div class="mt-3 p-3 bg-light rounded">
+                    <p class="mb-0">
+                        <strong>总学分：</strong>@Model.Scores.Sum(s => s.Course.Credit).ToString("0.0") |
+                        <strong>平均成绩：</strong>@Model.Scores.Average(s => s.ScoreValue).ToString("0.00")
+                    </p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+@* @page
+@model StudentGradeManagementBackend.Pages.StudentDashboardModel
+@{
+    ViewData["Title"] = "学生个人面板";
+    if (HttpContext.Session.GetString("Role")!= "student")
+    {
+        Response.Redirect("/Login");
+    }
+}
+<!DOCTYPE html>
+<html lang="zh - CN">
+<head>
+    <meta charset="UTF - 8">
+    <meta name="viewport" content="width=device - width, initial - scale = 1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/bootstrap.min.css" />
+</head>
+<body>
+    <nav class="navbar navbar-expand - lg navbar - dark bg - dark">
+        <div class="container">
+            <a class="navbar - brand" href="#">学生成绩管理系统</a>
+        </div>
+    </nav>
+    <div class="container mt - 4">
+        <h1 class="text - center mb - 4">欢迎，@Model.Student.Name</h1>
+        <table class="table table - striped table - bordered">
+            <thead>
+                <tr>
+                    <th>课程名称</th>
+                    <th>学分</th>
+                    <th>成绩</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Scores!= null)
+                {
+                    @foreach (var score in Model.Scores)
+                    {
+                        <tr>
+                            <td>@score.Course.CourseName</td>
+                            <td>@score.Course.Credit</td>
+                            <td>@score.ScoreValue</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    <script src="~/lib/bootstrap/bootstrap.bundle.min.js"></script>
+</body>
+</html> *@

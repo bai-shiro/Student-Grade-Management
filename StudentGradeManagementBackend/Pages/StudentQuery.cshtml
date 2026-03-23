@@ -1,0 +1,31 @@
+@page
+@model StudentGradeManagementBackend.Pages.StudentQueryModel
+@{
+    ViewData["Title"] = "我的成绩";
+    if (HttpContext.Session.GetString("Role") != "student")
+    {
+        Response.Redirect("/Login");
+    }
+}
+
+<h1>我的成绩</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>课程名称</th>
+            <th>分数</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.MyScores != null)
+        {
+            @foreach (var score in Model.MyScores)
+            {
+                <tr>
+                    <td>@score.CourseName</td>
+                    <td>@score.Grade</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

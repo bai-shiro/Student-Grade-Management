@@ -1,0 +1,82 @@
+﻿@page
+@model StudentGradeManagementBackend.Pages.IndexModel
+@{
+    ViewData["Title"] = "管理员主页面";
+    if (HttpContext.Session.GetString("Role")!= "admin")
+    {
+        Response.Redirect("/Login");
+    }
+}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/wwwroot/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <!-- 这里将href设置为首页路径，假设首页就是Index.cshtml，相对路径为./Index -->
+            <a class="navbar-brand" href="./Index">学生成绩管理系统</a> 
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="visually-hidden">切换导航</span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            @* <button class="navbar-toggler" type="button" data - bs - toggle="collapse" data - bs - target="#navbarNav" aria - controls="navbarNav" aria - expanded="false" aria - label="Toggle navigation">
+                <span class="navbar - toggler - icon"></span>
+            </button> *@
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="./Index">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="StudentManagement">学生管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="CourseManagement">课程管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ScoreManagement">成绩管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="UserManagement">用户管理</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">欢迎来到管理员主页面</h1>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">学生人数</h5>
+                        <p class="card-text">@Model.StudentCount</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">课程数</h5>
+                        <p class="card-text">@Model.CourseCount</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">总学分</h5>
+                        <p class="card-text">@Model.TotalCredit</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

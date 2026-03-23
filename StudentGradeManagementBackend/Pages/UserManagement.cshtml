@@ -1,0 +1,270 @@
+@page
+@model StudentGradeManagementBackend.Pages.UserManagementModel
+@{
+    ViewData["Title"] = "用户管理";
+    if (HttpContext.Session.GetString("Role") != "admin")
+    {
+        Response.Redirect("/Login");
+    }
+}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <!-- 修复Bootstrap路径 -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">学生成绩管理系统</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Index">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="StudentManagement">学生管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="CourseManagement">课程管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ScoreManagement">成绩管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">用户管理</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">用户管理</h1>
+        <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">添加用户</button>
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>用户编号</th>
+                    <th>密码</th>
+                    <th>角色</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Users != null && Model.Users.Count > 0)
+                {
+                    @foreach (var user in Model.Users)
+                    {
+                        <tr>
+                            <td>@user.UserId.Trim()</td>
+                            <td>@user.Password.Trim()</td>
+                            <td>@user.Role.Trim()</td>
+                            <td>
+                                <button type="button" 
+                                        class="btn btn-primary btn-sm" 
+                                        onclick="openEditModal('@user.UserId.Trim()', '@user.Password.Trim()', '@user.Role.Trim()')">
+                                    编辑
+                                </button>
+                                <button type="button" 
+                                        class="btn btn-danger btn-sm" 
+                                        onclick="deleteUser('@user.UserId.Trim()')">
+                                    删除
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center">暂无用户数据</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- 添加用户模态框（修复角色下拉框值） -->
+        <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addUserModalLabel">添加用户</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- 修复：用form包裹，确保令牌正确提交 -->
+                        <form id="addUserForm">
+                            @Html.AntiForgeryToken()
+                            <div class="form-group mb-3">
+                                <label for="addUserId">用户编号</label>
+                                <input type="text" class="form-control" id="addUserId" name="AddUserId" required placeholder="如：admin001" maxlength="10">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="addPassword">密码</label>
+                                <input type="password" class="form-control" id="addPassword" name="AddPassword" required placeholder="请输入密码">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="addRole">角色</label>
+                                <!-- 修复：角色值改为admin/student，匹配数据库ENUM -->
+                                <select class="form-control" id="addRole" name="AddRole" required>
+                                    <option value="">请选择角色</option>
+                                    <option value="admin">管理员</option>
+                                    <option value="student">学生</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-primary w-100" onclick="submitAddUser()">提交</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 编辑用户模态框（修复角色下拉框值） -->
+        <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editUserModalLabel">编辑用户</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editUserForm">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" id="hiddenUserId" name="EditUserId">
+                            <div class="form-group mb-3">
+                                <label>用户编号（不可修改）</label>
+                                <input type="text" class="form-control" id="showUserId" readonly disabled>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="editPassword">密码</label>
+                                <input type="password" class="form-control" id="editPassword" name="EditPassword" required placeholder="请输入密码">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="editRole">角色</label>
+                                <select class="form-control" id="editRole" name="EditRole" required>
+                                    <option value="">请选择角色</option>
+                                    <option value="admin">管理员</option>
+                                    <option value="student">学生</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-primary w-100" onclick="submitEditUser()">提交修改</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局常量
+        const token = $('input[name="__RequestVerificationToken"]').val();
+        const baseUrl = '/UserManagement';
+
+        // 1. 打开编辑模态框
+        function openEditModal(userId, password, role) {
+            $('#hiddenUserId').val(userId);
+            $('#showUserId').val(userId);
+            $('#editPassword').val(password);
+            $('#editRole').val(role);
+            $('#editUserModal').modal('show');
+        }
+
+        // 2. 提交添加用户（修复AJAX格式）
+        function submitAddUser() {
+            const formData = $('#addUserForm').serialize(); // 用serialize自动包含令牌和所有字段
+            const userId = $('#addUserId').val().trim();
+            const password = $('#addPassword').val().trim();
+            const role = $('#addRole').val().trim();
+
+            // 前端校验
+            if (!userId) { alert('用户编号不能为空！'); return; }
+            if (userId.length > 10) { alert('用户编号不能超过10个字符！'); return; }
+            if (!password) { alert('密码不能为空！'); return; }
+            if (!role) { alert('请选择角色！'); return; }
+
+            // 修复：设置正确的contentType，确保参数解析正常
+            $.ajax({
+                url: baseUrl,
+                method: 'POST',
+                data: formData,
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                success: function() {
+                    alert('用户添加成功！');
+                    $('#addUserModal').modal('hide');
+                    $('#addUserForm')[0].reset(); // 重置表单
+                    window.location.reload();
+                },
+                error: function(jqXHR) {
+                    const msg = jqXHR.responseJSON?.error || `添加失败：${jqXHR.statusText}`;
+                    alert(msg);
+                }
+            });
+        }
+
+        // 3. 提交编辑用户
+        function submitEditUser() {
+            const formData = $('#editUserForm').serialize();
+            const userId = $('#hiddenUserId').val().trim();
+            const password = $('#editPassword').val().trim();
+            const role = $('#editRole').val().trim();
+
+            if (!userId) { alert('用户编号无效！'); return; }
+            if (!password) { alert('密码不能为空！'); return; }
+            if (!role) { alert('请选择角色！'); return; }
+
+            $.ajax({
+                url: baseUrl,
+                method: 'POST',
+                data: formData,
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                success: function() {
+                    alert('用户编辑成功！');
+                    $('#editUserModal').modal('hide');
+                    window.location.reload();
+                },
+                error: function(jqXHR) {
+                    const msg = jqXHR.responseJSON?.error || `编辑失败：${jqXHR.statusText}`;
+                    alert(msg);
+                }
+            });
+        }
+
+        // 4. 删除用户
+        function deleteUser(userId) {
+            userId = (userId || '').trim();
+            if (!userId) { alert('用户编号不能为空！'); return; }
+
+            if (confirm(`确定删除用户编号【${userId}】的记录吗？`)) {
+                // 构建删除参数，包含令牌
+                const formData = {
+                    __RequestVerificationToken: token,
+                    DeleteUserId: userId
+                };
+
+                $.ajax({
+                    url: baseUrl,
+                    method: 'POST',
+                    data: formData,
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                    success: function() {
+                        alert('用户删除成功！');
+                        window.location.reload();
+                    },
+                    error: function(jqXHR) {
+                        const msg = jqXHR.responseJSON?.error || `删除失败：${jqXHR.statusText}`;
+                        alert(msg);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
