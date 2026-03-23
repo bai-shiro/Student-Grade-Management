@@ -146,7 +146,7 @@ namespace StudentGradeManagementBackend.Services
             await deleteCommand.ExecuteNonQueryAsync();
         }
 
-        // 新增的总学分计算方法
+        // 总学分计算方法
         public async Task<decimal> GetTotalCreditAsync()
         {
             using var connection = new MySqlConnection(_connectionString);

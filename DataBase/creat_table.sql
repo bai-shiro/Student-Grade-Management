@@ -91,6 +91,12 @@ INSERT INTO courses (course_id, course_name, credit) VALUES
 ('C003', '数据结构', 4.0),
 ('C004', '操作系统', 3.0);
 
+INSERT INTO students (student_id, name, class_id, department_id, enrollment_year) VALUES 
+('2023065732', '张三', '57', '06', 2023);
+
+INSERT INTO users (user_id, password, role) VALUES 
+('2023065732', '123456', 'student');
+
 -- 插入测试成绩数据（关联已添加的学生2023065732）
 INSERT INTO scores (student_id, course_id, score) VALUES 
 ('2023065732', 'C001', 85.5),

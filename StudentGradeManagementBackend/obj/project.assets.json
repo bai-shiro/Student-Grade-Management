@@ -491,11 +491,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "Z:\\.course_code\\StudentGradeManagementBackend\\StudentGradeManagementBackend.csproj",
+      "projectUniqueName": "Z:\\.course_code\\source code\\StudentGradeManagementBackend\\StudentGradeManagementBackend.csproj",
       "projectName": "StudentGradeManagementBackend",
-      "projectPath": "Z:\\.course_code\\StudentGradeManagementBackend\\StudentGradeManagementBackend.csproj",
+      "projectPath": "Z:\\.course_code\\source code\\StudentGradeManagementBackend\\StudentGradeManagementBackend.csproj",
       "packagesPath": "C:\\Users\\Sola\\.nuget\\packages\\",
-      "outputPath": "Z:\\.course_code\\StudentGradeManagementBackend\\obj\\",
+      "outputPath": "Z:\\.course_code\\source code\\StudentGradeManagementBackend\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Sola\\AppData\\Roaming\\NuGet\\NuGet.Config"
